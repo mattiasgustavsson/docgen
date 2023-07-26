@@ -1,0 +1,54 @@
+name: publish
+ 
+on:
+  release:
+    types: [published]
+    
+permissions:
+  contents: write
+ 
+jobs: 
+  publish-windows: 
+    runs-on: windows-2019 
+    steps: 
+      - uses: actions/checkout@v1
+        # this runs vcvarsall for us, so we get the MSVC toolchain in PATH. 
+      - uses: seanmiddleditch/gha-setup-vsdevenv@master 
+      - name: build docgen 
+        run: | 
+          cl source\docgen.c /nologo /O2 /Ob2 /Oi /Ot /Oy /MT /GL /GF /D "NDEBUG" /link /INCREMENTAL:NO /OPT:REF /OPT:ICF /LTCG /SUBSYSTEM:CONSOLE 
+          7z a docgen-win.zip docgen.exe
+      - name: upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: docgen-win.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-macos: 
+    runs-on: macos-latest
+    steps: 
+      - uses: actions/checkout@v1 
+      - name: build docgen 
+        run: | 
+          clang -o ./docgen source/docgen.c 
+          tar -czvf docgen-mac.tar.gz ./docgen
+      - name: upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: docgen-mac.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  publish-linux: 
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v1 
+      - name: build docgen 
+        run: | 
+          gcc -o ./docgen source/docgen.c 
+          tar -czvf docgen-linux.tar.gz ./docgen
+      - name: upload artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: docgen-linux.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
