@@ -1,3 +1,4 @@
-![build](https://github.com/mattiasgustavsson/docgen/workflows/build/badge.svg) 
+![build](https://github.com/mattiasgustavsson/docgen/actions/workflows/main.yaml/badge.svg)
+
 # docgen 
 Generate html documentation from markdown 
